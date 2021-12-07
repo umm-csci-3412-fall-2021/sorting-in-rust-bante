@@ -82,40 +82,43 @@ fn insertion_sort<T: PartialOrd + std::fmt::Debug>(v: &mut [T]) {
 //
 // Note that the parameter v *has* to be mutable because we're 
 // modifying it in place.
-fn quicksort<T: PartialOrd + std::fmt::Debug>(v: &mut [T]) {
-    // Quicksort is a recursive solution where we select a pivot
-    // value (usually just the first element) and split (in place)
-    // the array into two sections: The "front" is all < the pivot,
-    // and the "back" is all ≥ pivot. More formally, there's an
-    // index smaller where:
-    //   (All i | 0 ≤ i < smaller : v[i] < pivot) /\
-    //   (All i | smaller ≤ i < length : v[i] ≥ pivot)
-    // Now you can recursively call quicksort on the front using
-    // the slice v[0..smaller] to sort that part, and call it
-    // recursively on the slice v[smaller+1..length] to sort 
-    // the back half. (You need the +1 to ensure that both slices
-    // are smaller than the original array; without it you can
-    // end up with infinite recursion.)
-
-    let length = v.len();
-    // If the array has 0 or 1 elements it's already sorted
-    // and we'll just stop.
-    if length < 2 {
-        return;
+fn quicksort<T: Ord>(arr: &mut [T]) {
+    if arr.len() == 0 {
+        return
     }
+    perform_quick_sort(arr, 0, (arr.len() - 1) as isize);
+}
 
-    // Now choose a pivot and do the organizing.
-    
-    // ...
+fn perform_quick_sort<T: Ord>(arr: &mut [T], low: isize, high: isize) {
+    if low < high {
+        let p = partition(arr, low, high);
+        perform_quick_sort(arr, low, p - 1);
+        perform_quick_sort(arr, p + 1, high);
+    }
+}
 
-    let smaller = 0; // Totally wrong – you should fix this.
+fn partition<T: Ord>(arr: &mut [T], low: isize, high: isize) -> isize {
+    let pivot = high as usize;
+    let mut current = low - 1;
+    let mut last = high;
 
-    // Sort all the items < pivot
-    quicksort(&mut v[0..smaller]);
-    // Sort all the items ≥ pivot, *not* including the
-    // pivot value itself. If we don't include the +1
-    // here you can end up in infinite recursions.
-    quicksort(&mut v[smaller+1..length]);
+    while true {
+        current += 1;
+        while arr[current as usize] < arr[pivot] {
+            current += 1;
+        }
+        last -= 1;
+        while last >= 0 && arr[last as usize] > arr[pivot] {
+            last -= 1;
+        }
+        if current >= last {
+            break;
+        } else {
+            arr.swap(current as usize, last as usize);
+        }
+    }
+    arr.swap(current as usize, pivot as usize);
+    current
 }
 
 // Merge sort can't be done "in place", so it needs to return a _new_
