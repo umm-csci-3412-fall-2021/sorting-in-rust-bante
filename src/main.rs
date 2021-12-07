@@ -167,27 +167,30 @@ fn merge_sort<T: PartialOrd + std::marker::Copy + std::fmt::Debug>(v: &[T]) -> V
     merge(left, right)
 }
 
-// "Out of the box" there's a warning here about `ys` being
-// unused. Presumably you'll actually use `ys` in your solution,
-// so that warning should go away. You can remove this comment
-// if you wish since it won't be relevant any longer.
 fn merge<T: PartialOrd + std::marker::Copy + std::fmt::Debug>(xs: Vec<T>, ys: Vec<T>) -> Vec<T> {
-    // This takes two sorted vectors, like:
-    //    <5, 8, 9> and
-    //    <0, 2, 3, 6>
-    // and merges them into a single sorted vector like:
-    //    <0, 2, 3, 5, 6, 8, 9>
-    // You should be able to do this in linear time by having
-    // two indices that point to where you are in xs and ys.
-    // You then compare those values, push the smaller one onto
-    // the result vector, and increment the appropriate index.
-    // You stop when one of your indices hits the end of its
-    // vector, and then push all the remaining elements from the
-    // other vector onto the result.
+    let mut i = 0;
+    let mut j = 0;
+    let mut result = Vec::<T>::new();
+    while i < xs.len() && j < ys.len(){
+        if xs[i] < ys[j]{
+            result.push(xs[i]);
+            i += 1;
+        }
+        else {
+            result.push(ys[j]);
+            j += 1;
+        }
+    }
+    while i < xs.len() {
+        result.push(xs[i]);
+        i = i +1;
+    }
+    while j < ys.len() {
+        result.push(ys[j]);
+        j = j +1;
+    }
 
-    // This is totally wrong and will not sort. You should replace it
-    // with something useful. :)
-    xs
+    result
 }
 
 fn is_sorted<T: PartialOrd>(slice: &[T]) -> bool {
