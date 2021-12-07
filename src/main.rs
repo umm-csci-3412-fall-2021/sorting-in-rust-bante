@@ -82,40 +82,43 @@ fn insertion_sort<T: PartialOrd + std::fmt::Debug>(v: &mut [T]) {
 //
 // Note that the parameter v *has* to be mutable because we're 
 // modifying it in place.
-fn quicksort<T: PartialOrd + std::fmt::Debug>(v: &mut [T]) {
-    // Quicksort is a recursive solution where we select a pivot
-    // value (usually just the first element) and split (in place)
-    // the array into two sections: The "front" is all < the pivot,
-    // and the "back" is all ≥ pivot. More formally, there's an
-    // index smaller where:
-    //   (All i | 0 ≤ i < smaller : v[i] < pivot) /\
-    //   (All i | smaller ≤ i < length : v[i] ≥ pivot)
-    // Now you can recursively call quicksort on the front using
-    // the slice v[0..smaller] to sort that part, and call it
-    // recursively on the slice v[smaller+1..length] to sort 
-    // the back half. (You need the +1 to ensure that both slices
-    // are smaller than the original array; without it you can
-    // end up with infinite recursion.)
-
-    let length = v.len();
-    // If the array has 0 or 1 elements it's already sorted
-    // and we'll just stop.
-    if length < 2 {
-        return;
+fn quicksort<T: Ord>(arr: &mut [T]) {
+    if arr.len() == 0 {
+        return
     }
+    perform_quick_sort(arr, 0, (arr.len() - 1) as isize);
+}
 
-    // Now choose a pivot and do the organizing.
-    
-    // ...
+fn perform_quick_sort<T: Ord>(arr: &mut [T], low: isize, high: isize) {
+    if low < high {
+        let p = partition(arr, low, high);
+        perform_quick_sort(arr, low, p - 1);
+        perform_quick_sort(arr, p + 1, high);
+    }
+}
 
-    let smaller = 0; // Totally wrong – you should fix this.
+fn partition<T: Ord>(arr: &mut [T], low: isize, high: isize) -> isize {
+    let pivot = high as usize;
+    let mut current = low - 1;
+    let mut last = high;
 
-    // Sort all the items < pivot
-    quicksort(&mut v[0..smaller]);
-    // Sort all the items ≥ pivot, *not* including the
-    // pivot value itself. If we don't include the +1
-    // here you can end up in infinite recursions.
-    quicksort(&mut v[smaller+1..length]);
+    while true {
+        current += 1;
+        while arr[current as usize] < arr[pivot] {
+            current += 1;
+        }
+        last -= 1;
+        while last >= 0 && arr[last as usize] > arr[pivot] {
+            last -= 1;
+        }
+        if current >= last {
+            break;
+        } else {
+            arr.swap(current as usize, last as usize);
+        }
+    }
+    arr.swap(current as usize, pivot as usize);
+    current
 }
 
 // Merge sort can't be done "in place", so it needs to return a _new_
@@ -164,27 +167,30 @@ fn merge_sort<T: PartialOrd + std::marker::Copy + std::fmt::Debug>(v: &[T]) -> V
     merge(left, right)
 }
 
-// "Out of the box" there's a warning here about `ys` being
-// unused. Presumably you'll actually use `ys` in your solution,
-// so that warning should go away. You can remove this comment
-// if you wish since it won't be relevant any longer.
 fn merge<T: PartialOrd + std::marker::Copy + std::fmt::Debug>(xs: Vec<T>, ys: Vec<T>) -> Vec<T> {
-    // This takes two sorted vectors, like:
-    //    <5, 8, 9> and
-    //    <0, 2, 3, 6>
-    // and merges them into a single sorted vector like:
-    //    <0, 2, 3, 5, 6, 8, 9>
-    // You should be able to do this in linear time by having
-    // two indices that point to where you are in xs and ys.
-    // You then compare those values, push the smaller one onto
-    // the result vector, and increment the appropriate index.
-    // You stop when one of your indices hits the end of its
-    // vector, and then push all the remaining elements from the
-    // other vector onto the result.
+    let mut i = 0;
+    let mut j = 0;
+    let mut result = Vec::<T>::new();
+    while i < xs.len() && j < ys.len(){
+        if xs[i] < ys[j]{
+            result.push(xs[i]);
+            i += 1;
+        }
+        else {
+            result.push(ys[j]);
+            j += 1;
+        }
+    }
+    while i < xs.len() {
+        result.push(xs[i]);
+        i = i +1;
+    }
+    while j < ys.len() {
+        result.push(ys[j]);
+        j = j +1;
+    }
 
-    // This is totally wrong and will not sort. You should replace it
-    // with something useful. :)
-    xs
+    result
 }
 
 fn is_sorted<T: PartialOrd>(slice: &[T]) -> bool {
